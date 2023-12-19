@@ -7,6 +7,7 @@ import com.cinema.repositories.MovieRepository;
 import com.cinema.services.MovieService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,8 +24,9 @@ public class MovieController {
     MovieService movieService;
 
     @GetMapping
-    public ResponseEntity<List<Movie>> getMovies() {
-        return movieService.getAllMovies();
+    @RequestMapping("/all/{page}/{size}")
+    public ResponseEntity<Page<Movie>> getMovies(@PathVariable int page, @PathVariable int size) {
+        return movieService.getAllMovies(page, size);
     }
 
     @GetMapping("/findByName/{name}")

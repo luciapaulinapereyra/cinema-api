@@ -7,6 +7,8 @@ import com.cinema.models.Movie;
 import com.cinema.repositories.MovieRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,8 +24,17 @@ public class MovieService {
 
     private static Logger logger = Logger.getLogger(MovieService.class);
 
-    public ResponseEntity<List<Movie>> getAllMovies() {
-        return new ResponseEntity<>(movieRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<Page<Movie>> getAllMovies(int page, int size) {
+        try {
+            Page<Movie> movies = movieRepository.findAll(PageRequest.of(page, size));
+            if (movies.isEmpty())
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(movies, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error getting movies: " + e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     public ResponseEntity<ResponseDTO> addMovie(MovieDTO movieRequest) {

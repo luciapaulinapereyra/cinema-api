@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,14 +43,16 @@ class MovieControllerTest {
         movie.setName("Test");
         movie.setDuration(2.40);
         movie.setDirector("Test");
-        when(movieService.getAllMovies()).thenReturn(new ResponseEntity<>(List.of(movie), HttpStatus.OK));
 
-        mockMvc.perform(get("/api/movies"))
+        Page<Movie> movies = new PageImpl<>(List.of(movie));
+
+        when(movieService.getAllMovies(0, 10)).thenReturn(new ResponseEntity<>(movies, HttpStatus.OK));
+
+        mockMvc.perform(get("/api/movies/all/{page}/{size}", 0, 10)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].name").value("Test"))
-                .andExpect(jsonPath("$[0].duration").value(2.40))
-                .andExpect(jsonPath("$[0].director").value("Test"));
+                .andExpect(jsonPath("$.totalElements").value(1));
+
     }
 
     @Test

@@ -12,6 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.awt.geom.RectangularShape;
@@ -38,10 +41,17 @@ class MovieServiceTest {
 
     @Test
     void getAllMovies() {
-        when(movieRepository.findAll()).thenReturn(new ArrayList<>());
 
-        ResponseEntity<List<Movie>> responseEntity = movieService.getAllMovies();
-        assertEquals(0, responseEntity.getBody().size());
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setName("Test");
+        movie.setDuration(2.40);
+        movie.setDirector("Test");
+        Page<Movie> movies = new PageImpl<>(List.of(movie));
+        when(movieRepository.findAll(PageRequest.of(1, 10))).thenReturn(movies);
+
+        ResponseEntity<Page<Movie>> responseEntity = movieService.getAllMovies(1, 10);
+        assertEquals(1, responseEntity.getBody().getTotalElements());
         assertEquals(200, responseEntity.getStatusCodeValue());
     }
 
