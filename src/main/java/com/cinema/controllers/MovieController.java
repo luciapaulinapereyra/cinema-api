@@ -1,7 +1,9 @@
 package com.cinema.controllers;
 
+import com.cinema.dto.MovieDTO;
 import com.cinema.dto.ResponseDTO;
 import com.cinema.models.Movie;
+import com.cinema.repositories.MovieRepository;
 import com.cinema.services.MovieService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ public class MovieController {
     MovieService movieService;
 
     @GetMapping
-    public List<Movie> getMovies() {
+    public ResponseEntity<List<Movie>> getMovies() {
         return movieService.getAllMovies();
     }
 
@@ -34,18 +36,18 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> addMovie(@RequestBody @Validated Movie movie) {
+    public ResponseEntity<ResponseDTO> addMovie(@RequestBody @Validated MovieDTO movie) {
         return movieService.addMovie(movie);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseDTO>  deleteMovie(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> deleteMovie(@PathVariable Long id) {
         return movieService.deleteMovie(id);
     }
 
-@PutMapping("/update/{id}")
-    public ResponseEntity<ResponseDTO> updateMovie(@PathVariable Long id, @RequestBody @Validated Movie movie) {
-        return movieService.updateMovie(id,movie);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ResponseDTO> updateMovie(@PathVariable Long id, @RequestBody @Validated MovieDTO movie) {
+        return movieService.updateMovie(id, movie);
     }
 
 

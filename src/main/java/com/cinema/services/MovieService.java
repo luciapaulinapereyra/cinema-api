@@ -1,9 +1,11 @@
 package com.cinema.services;
 
+import com.cinema.dto.MovieDTO;
 import org.apache.log4j.Logger;
 import com.cinema.dto.ResponseDTO;
 import com.cinema.models.Movie;
 import com.cinema.repositories.MovieRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +20,23 @@ public class MovieService {
     @Autowired
     MovieRepository movieRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
     private static Logger logger = Logger.getLogger(MovieService.class);
 
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+    public ResponseEntity<List<Movie>> getAllMovies() {
+        return new ResponseEntity<>(movieRepository.findAll(), HttpStatus.OK);
     }
 
-    public ResponseEntity<ResponseDTO> addMovie(Movie movie) {
+    public ResponseEntity<ResponseDTO> addMovie(MovieDTO movieRequest) {
         try {
-            Movie movieFound = findByName(movie.getName());
+            Movie movieFound = movieRepository.findByName(movieRequest.getName()).orElse(null);
             if (movieFound != null)
                 return new ResponseEntity<>(new ResponseDTO(HttpStatus.CONFLICT, "Movie already exists"), HttpStatus.CONFLICT);
+
+            Movie movie = modelMapper.map(movieRequest, Movie.class);
             movieRepository.save(movie);
-            return new ResponseEntity<>(new ResponseDTO(HttpStatus.OK, "Movie added successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseDTO(HttpStatus.OK, "Movie added successfully", movie), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error adding movie: " + e);
             return new ResponseEntity<>(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding movie: " + e), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -40,7 +46,7 @@ public class MovieService {
     public Movie findByName(String name) {
         try {
             Optional<Movie> movie = movieRepository.findByName(name);
-            if (!movie.isPresent()) {
+            if (movie.isEmpty()) {
                 logger.error("Movie not found");
                 return null;
             }
@@ -54,6 +60,9 @@ public class MovieService {
 
     public ResponseEntity<ResponseDTO> deleteMovie(Long id) {
         try {
+            Optional<Movie> movie = movieRepository.findById(id);
+            if (movie.isEmpty())
+                return new ResponseEntity<>(new ResponseDTO(HttpStatus.NOT_FOUND, "Movie not found"), HttpStatus.NOT_FOUND);
             movieRepository.deleteById(id);
             return new ResponseEntity<>(new ResponseDTO(HttpStatus.OK, "Movie deleted successfully"), HttpStatus.OK);
         } catch (Exception e) {
@@ -62,10 +71,11 @@ public class MovieService {
         }
     }
 
-    public ResponseEntity<ResponseDTO> updateMovie(Long id, Movie movie) {
+    public ResponseEntity<ResponseDTO> updateMovie(Long id, MovieDTO movie) {
         try {
             Optional<Movie> findMovie = movieRepository.findById(id);
-            if (!findMovie.isPresent()) return  new ResponseEntity<>(new ResponseDTO(HttpStatus.NOT_FOUND, "Movie not found"), HttpStatus.NOT_FOUND);
+            if (!findMovie.isPresent())
+                return new ResponseEntity<>(new ResponseDTO(HttpStatus.NOT_FOUND, "Movie not found"), HttpStatus.NOT_FOUND);
 
             Movie movieToUpdate = findMovie.get();
 
@@ -74,7 +84,7 @@ public class MovieService {
             if (movie.getDuration() != null) movieToUpdate.setDuration(movie.getDuration());
 
             movieRepository.save(movieToUpdate);
-            return new ResponseEntity<>(new ResponseDTO(HttpStatus.OK, "Movie updated successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseDTO(HttpStatus.OK, "Movie updated successfully", movie), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error updating movie: " + e);
             return new ResponseEntity<>(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating movie: " + e), HttpStatus.INTERNAL_SERVER_ERROR);

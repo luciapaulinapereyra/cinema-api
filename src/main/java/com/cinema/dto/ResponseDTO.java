@@ -12,12 +12,19 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ResponseDTO {
 
-        private HttpStatus status;
-        private Object content;
-        private String description;
+    private HttpStatus status;
+    private Object content;
+    private String description;
 
-        public ResponseDTO(HttpStatus status, String description) {
-             this.status = status;
-             this.description = description;
-        }
+
+    public ResponseDTO(HttpStatus status, String description) {
+        this.status = status;
+        this.description = description;
+    }
+
+    public ResponseDTO(HttpStatus status, String description, Object content) {
+        this.status = status;
+        this.description = description;
+        this.content = content;
+    }
 }
