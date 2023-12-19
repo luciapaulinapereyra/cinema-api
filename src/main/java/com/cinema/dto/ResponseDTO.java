@@ -22,9 +22,4 @@ public class ResponseDTO {
         this.description = description;
     }
 
-    public ResponseDTO(HttpStatus status, String description, Object content) {
-        this.status = status;
-        this.description = description;
-        this.content = content;
-    }
 }

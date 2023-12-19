@@ -53,8 +53,6 @@ class MovieServiceTest {
         movieReq.setDirector("Test Director");
         when(movieRepository.findByName("Test Movie")).thenReturn(Optional.empty());
 
-        when(modelMapper.map(movieReq, Movie.class)).thenReturn(new Movie());
-
 
         ResponseEntity<ResponseDTO> responseEntity = movieService.addMovie(movieReq);
         assertEquals(200, responseEntity.getStatusCodeValue());

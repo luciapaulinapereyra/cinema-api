@@ -9,7 +9,7 @@ class ResponseDTOTest {
 
     @Test
     void testFullConstructor() {
-        ResponseDTO responseDTO = new ResponseDTO(HttpStatus.OK, "description", new MovieDTO());
+        ResponseDTO responseDTO = new ResponseDTO(HttpStatus.OK,  new MovieDTO(), "description");
 
         assertEquals(HttpStatus.OK, responseDTO.getStatus());
         assertEquals("description", responseDTO.getDescription());
@@ -17,12 +17,14 @@ class ResponseDTOTest {
     }
 
     @Test
-    void testConstructor() {
+    void testConstructorStatusAndDesc() {
         ResponseDTO responseDTO = new ResponseDTO(HttpStatus.OK, "description");
 
         assertEquals(HttpStatus.OK, responseDTO.getStatus());
         assertEquals("description", responseDTO.getDescription());
     }
+
+
 
 
     @Test
