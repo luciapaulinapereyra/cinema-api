@@ -56,6 +56,34 @@ class MovieServiceTest {
     }
 
     @Test
+    void getAllMovies_ReturnsNoContent() {
+
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setName("Test");
+        movie.setDuration(2.40);
+        movie.setDirector("Test");
+        when(movieRepository.findAll(PageRequest.of(1, 10))).thenReturn(Page.empty());
+
+        ResponseEntity<Page<Movie>> responseEntity = movieService.getAllMovies(1, 10);
+        assertEquals(204, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
+    void getAllMovies_ThrowsError() {
+
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setName("Test");
+        movie.setDuration(2.40);
+        movie.setDirector("Test");
+        when(movieRepository.findAll(PageRequest.of(1, 10))).thenThrow(new RuntimeException());
+
+        ResponseEntity<Page<Movie>> responseEntity = movieService.getAllMovies(1, 10);
+        assertEquals(500, responseEntity.getStatusCodeValue());
+    }
+
+    @Test
     void addMovie() {
         MovieDTO movieReq = new MovieDTO();
         movieReq.setName("Test Movie");

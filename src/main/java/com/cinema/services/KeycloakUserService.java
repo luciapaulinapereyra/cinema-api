@@ -9,6 +9,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -40,7 +41,7 @@ public class KeycloakUserService {
     public UserDTO registerUserInKeycloak(UserRequestDTO request, String role) {
         UsersResource usersResource = keycloakProvider.getInstance().realm(realm).users();
 
-        List<UserRepresentation> existingsUsers = usersResource.search(request.getEmail());
+        List<UserRepresentation> existingsUsers = usersResource.search(request.getUsername());
 
         if (!existingsUsers.isEmpty()) {
             return null;
@@ -66,7 +67,7 @@ public class KeycloakUserService {
     public UserRepresentation setKeycloakUser(UserRequestDTO request) {
         UserRepresentation kcUser = new UserRepresentation();
         kcUser.setEnabled(true);
-        kcUser.setUsername(request.getEmail());
+        kcUser.setUsername(request.getUsername());
         kcUser.setEmail(request.getEmail());
         kcUser.setEmailVerified(true);
         CredentialRepresentation passwordCredentials = createPasswordCredentials(request.getPassword());
@@ -75,7 +76,6 @@ public class KeycloakUserService {
     }
 
     public void setUserRoles(String userId, UsersResource usersResource, String role) {
-        try {
             Keycloak keycloak = keycloakProvider.getInstance();
 
             RealmResource realmResource = keycloak.realm(realm);
@@ -89,10 +89,6 @@ public class KeycloakUserService {
                     .get(role).toRepresentation();
 
             userResource.roles().clientLevel(appClient.getId()).add(Arrays.asList(userClientRole));
-        } catch (Exception e) {
-            throw e;
-        }
-
     }
 
     public CredentialRepresentation createPasswordCredentials(String pass) {
@@ -101,5 +97,11 @@ public class KeycloakUserService {
         passwordCredentials.setType(CredentialRepresentation.PASSWORD);
         passwordCredentials.setValue(pass);
         return passwordCredentials;
+    }
+
+    public AccessTokenResponse login(UserRequestDTO request) {
+        Keycloak keycloak = keycloakProvider.newKeycloakBuilderWithPasswordCredentials(request.getUsername(), request.getPassword()).build();
+        AccessTokenResponse tokenResponse = keycloak.tokenManager().getAccessToken();
+        return tokenResponse;
     }
 }
