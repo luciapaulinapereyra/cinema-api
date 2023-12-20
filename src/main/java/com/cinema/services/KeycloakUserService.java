@@ -76,19 +76,19 @@ public class KeycloakUserService {
     }
 
     public void setUserRoles(String userId, UsersResource usersResource, String role) {
-            Keycloak keycloak = keycloakProvider.getInstance();
+        Keycloak keycloak = keycloakProvider.getInstance();
 
-            RealmResource realmResource = keycloak.realm(realm);
+        RealmResource realmResource = keycloak.realm(realm);
 
-            UserResource userResource = usersResource.get(userId);
+        UserResource userResource = usersResource.get(userId);
 
-            ClientRepresentation appClient = realmResource.clients().findByClientId(clientID).get(0);
+        ClientRepresentation appClient = realmResource.clients().findByClientId(clientID).get(0);
 
 
-            RoleRepresentation userClientRole = realmResource.clients().get(appClient.getId()).roles()
-                    .get(role).toRepresentation();
+        RoleRepresentation userClientRole = realmResource.clients().get(appClient.getId()).roles()
+                .get(role).toRepresentation();
 
-            userResource.roles().clientLevel(appClient.getId()).add(Arrays.asList(userClientRole));
+        userResource.roles().clientLevel(appClient.getId()).add(Arrays.asList(userClientRole));
     }
 
     public CredentialRepresentation createPasswordCredentials(String pass) {

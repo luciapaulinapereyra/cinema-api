@@ -1,11 +1,14 @@
 package com.cinema.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,4 +24,9 @@ public class Movie {
         private String director;
         private String name;
         private Double duration;
+
+        @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+        @JsonIgnore
+        private List<MovieVote> votes = new ArrayList<>();
+
 }

@@ -1,8 +1,12 @@
 package com.cinema.controllers;
 
 import com.cinema.dto.MovieDTO;
+import com.cinema.dto.TopMovieDTO;
+import com.cinema.dto.VoteRequestDTO;
 import com.cinema.models.Movie;
 import com.cinema.services.MovieService;
+import com.cinema.services.MovieVoteService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,7 +41,11 @@ class MovieControllerTest {
     @MockBean
     private MovieService movieService;
 
+    @MockBean
+    private MovieVoteService movieVoteService;
+
     @Test
+    @WithMockUser(roles = "user")
     void getMovies() throws Exception {
         Movie movie = new Movie();
         movie.setId(1L);
@@ -56,6 +65,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "user")
     void getMovieByName_ReturnsOk() throws Exception {
         String name = "Test";
 
@@ -69,6 +79,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "user")
     void getMovieByName_ReturnsMovieNotFound() throws Exception {
         String name = "Test";
         when(movieService.findByName(name)).thenReturn(null);
@@ -79,6 +90,7 @@ class MovieControllerTest {
 
 
     @Test
+    @WithMockUser(roles = "admin")
     void addMovie() throws Exception {
         MovieDTO movieReq = new MovieDTO();
         movieReq.setName("Test");
@@ -96,6 +108,7 @@ class MovieControllerTest {
 
 
     @Test
+    @WithMockUser(roles = "admin")
     void deleteMovie() throws Exception {
         when(movieService.deleteMovie(1L)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
         mockMvc.perform(delete("/api/movies/delete/{id}", 1L))
@@ -103,6 +116,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "admin")
     void updateMovie() throws Exception {
         MovieDTO req = new MovieDTO();
         req.setName("Test");
@@ -117,4 +131,33 @@ class MovieControllerTest {
     }
 
 
+    @Test
+    @WithMockUser(roles = "user")
+    void voteForMovie() throws Exception {
+        VoteRequestDTO req = new VoteRequestDTO();
+        req.setMovieId(1L);
+        req.setVote(1);
+        when(movieVoteService.voteForMovie(1L, 1)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        mockMvc.perform(post("/api/movies/vote")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(req)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "user")
+    void getTopVotedMovie ()  throws Exception {
+        TopMovieDTO topMovie = new TopMovieDTO();
+        topMovie.setName("Test");
+        topMovie.setDirector("Test");
+        topMovie.setDuration(2.40);
+        topMovie.setVotes(1);
+
+        when(movieVoteService.getTopVotedMovie()).thenReturn(topMovie);
+
+        mockMvc.perform(get("/api/movies/top-movie"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Test"));
+    }
 }

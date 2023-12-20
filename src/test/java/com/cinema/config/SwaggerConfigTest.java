@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SwaggerConfigTest {
 
     @InjectMocks
-    private com.asap.pocket.configuration.SwaggerConfig swaggerConfig;
+    private SwaggerConfig swaggerConfig;
 
 
     @BeforeEach

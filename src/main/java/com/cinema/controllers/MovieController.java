@@ -2,14 +2,18 @@ package com.cinema.controllers;
 
 import com.cinema.dto.MovieDTO;
 import com.cinema.dto.ResponseDTO;
+import com.cinema.dto.TopMovieDTO;
+import com.cinema.dto.VoteRequestDTO;
 import com.cinema.models.Movie;
 import com.cinema.repositories.MovieRepository;
 import com.cinema.services.MovieService;
+import com.cinema.services.MovieVoteService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +27,10 @@ public class MovieController {
     @Autowired
     MovieService movieService;
 
-    @GetMapping
-    @RequestMapping("/all/{page}/{size}")
+    @Autowired
+    MovieVoteService movieVoteService;
+
+    @GetMapping("/all/{page}/{size}")
     public ResponseEntity<Page<Movie>> getMovies(@PathVariable int page, @PathVariable int size) {
         return movieService.getAllMovies(page, size);
     }
@@ -39,18 +45,34 @@ public class MovieController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ResponseDTO> addMovie(@RequestBody @Validated MovieDTO movie) {
         return movieService.addMovie(movie);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseDTO> deleteMovie(@PathVariable Long id) {
-        return movieService.deleteMovie(id);
-    }
-
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ResponseDTO> updateMovie(@PathVariable Long id, @RequestBody @Validated MovieDTO movie) {
         return movieService.updateMovie(id, movie);
+    }
+
+    @PostMapping("/vote")
+    @PreAuthorize("hasRole('user')")
+    public ResponseEntity<String> voteForMovie(@RequestBody VoteRequestDTO voteRequest) {
+        movieVoteService.voteForMovie(voteRequest.getMovieId(), voteRequest.getVote());
+        return ResponseEntity.ok("Voto registrado exitosamente.");
+    }
+
+    @GetMapping("/top-movie")
+    public ResponseEntity<TopMovieDTO> getTopVotedMovie() {
+        TopMovieDTO topMovie = movieVoteService.getTopVotedMovie();
+        return ResponseEntity.ok(topMovie);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<ResponseDTO> deleteMovie(@PathVariable Long id) {
+        return movieService.deleteMovie(id);
     }
 
 

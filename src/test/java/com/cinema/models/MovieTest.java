@@ -2,6 +2,9 @@ package com.cinema.models;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.ListIterator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MovieTest {
@@ -9,7 +12,7 @@ class MovieTest {
 
     @Test
     void testConstructor() {
-        Movie movie = new Movie(1L,"director", "name", 1.0);
+        Movie movie = new Movie(1L,"director", "name", 1.0, null);
 
         assertEquals(1L, movie.getId());
         assertEquals("director", movie.getDirector());
@@ -47,5 +50,14 @@ class MovieTest {
         movie.setDuration(1.0);
 
         assertEquals(1.0, movie.getDuration());
+    }
+
+    @Test
+    void setAndGetMovieVote() {
+        Movie movie = new Movie();
+        MovieVote movieVote = new MovieVote();
+        movie.setVotes(List.of(movieVote));
+
+        assertEquals(movieVote, movie.getVotes().get(0));
     }
 }
