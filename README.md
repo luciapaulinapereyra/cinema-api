@@ -1,4 +1,4 @@
-# CineApp - Sistema de Cartelera de Cine
+# Cinema API - Sistema de Cartelera de Cine
 
 Este proyecto es una aplicación desarrollada en Java con Spring Boot para gestionar la cartelera de un cine. Permite a los usuarios ver la lista de películas, filtrar por nombre, votar por la película destacada del momento, y ver información detallada sobre las películas. Los administradores tienen funciones adicionales como agregar, editar y eliminar películas.
 
@@ -36,9 +36,12 @@ Este proyecto es una aplicación desarrollada en Java con Spring Boot para gesti
 4. Accede a la aplicación en [http://localhost:8080](http://localhost:8080)
 5. Accede a Swagger para ver los endpoints en [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
 
-### Configuración adicional para Keycloak
+## Configuración Requerida
 
-Para que Keycloak funcione correctamente, asegúrate de modificar el archivo de hosts de Windows para permitir el mapeo. Para esto, dirigite al siguiente directorio: Windows ⇒ System 32 ⇒ Drivers ⇒ etc ⇒. Selecciona el archivo hosts y agrega la siguiente línea: 127.0.0.1 keycloak
+Para la API funcione correctamente, asegúrate de modificar el archivo de hosts de Windows para permitir el mapeo de puertos. Para esto, dirigite al siguiente directorio: Windows ⇒ System 32 ⇒ Drivers ⇒ etc ⇒. Selecciona el archivo hosts y agrega las siguiente líneas:
+
+- 127.0.0.1 keycloak
+- 127.0.0.1 db
 
 
 
